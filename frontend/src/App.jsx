@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useAppStore } from './store/useAppStore';
 import Navbar from './components/Navbar';
 import OfflineBanner from './components/OfflineBanner';
+import AuthGate from './components/AuthGate';
 import WalkInModal from './components/WalkInModal';
 import PaymentModal from './components/PaymentModal';
 import OwnerView from './components/views/OwnerView';
@@ -10,8 +11,9 @@ import ClientView from './components/views/ClientView';
 
 export default function App() {
   const { 
-    currentRole, 
-    fetchServerState, 
+    currentRole,
+    currentUser,
+    fetchServerState,
     setIsOnline, 
     syncOfflineQueue,
     isOnline,
@@ -101,15 +103,26 @@ export default function App() {
     };
   }, [isOnline, isSimulatedOffline]);
 
+  // Owner stays an open tab; barber and client require a matching account.
+  const needsAuth =
+    (currentRole === 'barber' || currentRole === 'client') &&
+    currentUser?.role !== currentRole;
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       <Navbar />
       <OfflineBanner />
 
       <main className="flex-1 pb-16">
-        {currentRole === 'owner' && <OwnerView />}
-        {currentRole === 'barber' && <BarberView />}
-        {currentRole === 'client' && <ClientView />}
+        {needsAuth ? (
+          <AuthGate />
+        ) : (
+          <>
+            {currentRole === 'owner' && <OwnerView />}
+            {currentRole === 'barber' && <BarberView />}
+            {currentRole === 'client' && <ClientView />}
+          </>
+        )}
       </main>
 
       {/* Modals */}

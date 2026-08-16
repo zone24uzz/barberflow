@@ -6,6 +6,7 @@ import { WebSocketServer, WebSocket } from 'ws';
 import dotenv from 'dotenv';
 import { db } from './supabaseDb.js';
 import { initTelegramBot, sendTelegramNotification } from './telegramBot.js';
+import createAuthRouter from './auth.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(morgan('dev'));
+app.use('/api/auth', createAuthRouter(db));
 
 // Initialize Telegram Bot
 const botInstance = initTelegramBot(process.env.APP_URL || 'http://localhost:5173');

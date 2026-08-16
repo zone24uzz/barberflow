@@ -11,8 +11,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     role TEXT NOT NULL DEFAULT 'barber', -- 'owner' | 'barber' | 'client'
     is_active BOOLEAN DEFAULT true,
     avatar_badge TEXT,
+    password_hash TEXT,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Phone is the login identifier, so it must be unique where present.
+CREATE UNIQUE INDEX IF NOT EXISTS profiles_phone_unique
+  ON public.profiles(phone) WHERE phone IS NOT NULL;
 
 -- 2. Services Table
 CREATE TABLE IF NOT EXISTS public.services (

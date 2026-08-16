@@ -4,7 +4,7 @@ import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const DB_PATH = path.join(__dirname, '../barberflow.sqlite');
+const DB_PATH = process.env.SQLITE_DB_PATH || path.join(__dirname, '../barberflow.sqlite');
 
 // Initialize Real SQLite DB on disk with WAL mode for ultra-fast concurrency
 const sqlite = new Database(DB_PATH);
@@ -21,6 +21,7 @@ function initSchema() {
       role TEXT NOT NULL, -- 'owner' | 'barber' | 'client'
       is_active INTEGER DEFAULT 1,
       avatar_badge TEXT,
+      password_hash TEXT,
       created_at TEXT NOT NULL
     );
 
@@ -77,6 +78,12 @@ function initSchema() {
       synced_at TEXT NOT NULL
     );
   `);
+
+  // Existing barberflow.sqlite files predate password_hash — add it once.
+  const profileColumns = sqlite.prepare('PRAGMA table_info(profiles)').all();
+  if (!profileColumns.some(c => c.name === 'password_hash')) {
+    sqlite.exec('ALTER TABLE profiles ADD COLUMN password_hash TEXT');
+  }
 
   // Seed default dataset if empty
   const profileCount = sqlite.prepare('SELECT COUNT(*) as count FROM profiles').get().count;
@@ -175,6 +182,26 @@ export class SqliteDB {
       inventory,
       transactions
     };
+  }
+
+  findProfileByPhone(phone) {
+    return sqlite.prepare('SELECT * FROM profiles WHERE phone = ?').get(phone);
+  }
+
+  registerProfile({ full_name, phone, password_hash, role }) {
+    if (this.findProfileByPhone(phone)) {
+      throw new Error('PHONE_TAKEN');
+    }
+
+    const id = `${role}-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    const avatar = role === 'barber' ? '💈' : '🙂';
+
+    sqlite.prepare(`
+      INSERT INTO profiles (id, full_name, phone, role, is_active, avatar_badge, password_hash, created_at)
+      VALUES (?, ?, ?, ?, 1, ?, ?, ?)
+    `).run(id, full_name, phone, role, avatar, password_hash, new Date().toISOString());
+
+    return { id, full_name, phone, role };
   }
 
   addAppointment(data) {

@@ -14,21 +14,20 @@ import {
 import { sound } from '../../utils/sound';
 
 export default function BarberView() {
-  const { 
-    profiles, 
-    services, 
-    appointments, 
+  const {
+    profiles,
+    services,
+    appointments,
     transactions,
-    selectedBarberId, 
-    setSelectedBarberId, 
-    updateAppointmentStatus, 
+    currentUser,
+    updateAppointmentStatus,
     setActivePaymentApt,
-    setIsWalkInModalOpen 
+    setIsWalkInModalOpen
   } = useAppStore();
 
   const [onBreak, setOnBreak] = useState(false);
   const barbers = profiles.filter(p => p.role === 'barber');
-  const currentBarber = barbers.find(b => b.id === selectedBarberId) || barbers[0];
+  const currentBarber = barbers.find(b => b.id === currentUser?.id) || currentUser;
 
   // Appointments for this specific barber
   const myWaiting = appointments.filter(a => a.barber_id === currentBarber?.id && a.status === 'waiting');
@@ -73,25 +72,7 @@ export default function BarberView() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8 space-y-6">
-      {/* 1. Barber Switcher */}
-      <div className="p-1 rounded-2xl bg-[#10121a] border border-white/[0.06] flex items-center justify-between gap-1 shadow-sm">
-        {barbers.map(barber => (
-          <button
-            key={barber.id}
-            onClick={() => { sound.play('click'); setSelectedBarberId(barber.id); }}
-            className={`flex-1 py-2.5 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all active:scale-95 ${
-              selectedBarberId === barber.id
-                ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
-                : 'text-slate-400 hover:text-slate-200 hover:bg-[#181a24]'
-            }`}
-          >
-            <span className={`w-2 h-2 rounded-full ${selectedBarberId === barber.id ? 'bg-slate-950' : 'bg-amber-400'}`} />
-            <span className="truncate">{barber.full_name.split(' ')[0]}</span>
-          </button>
-        ))}
-      </div>
-
-      {/* 2. Barber Profile & Earnings Hub */}
+      {/* 1. Barber Profile & Earnings Hub */}
       <div className="p-5 rounded-2xl bg-[#10121a] border border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-black text-lg">
@@ -120,7 +101,7 @@ export default function BarberView() {
         </button>
       </div>
 
-      {/* 3. ACTIVE CLIENT HERO CARD */}
+      {/* 2. ACTIVE CLIENT HERO CARD */}
       <div className="p-6 rounded-3xl bg-[#10121a] border border-white/[0.08] space-y-5 shadow-lg relative overflow-hidden">
         <div className="flex items-center justify-between">
           <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
@@ -203,7 +184,7 @@ export default function BarberView() {
         )}
       </div>
 
-      {/* 4. NEXT CLIENTS IN QUEUE */}
+      {/* 3. NEXT CLIENTS IN QUEUE */}
       <div className="p-5 rounded-2xl bg-[#10121a] border border-white/[0.06] space-y-3.5">
         <div className="flex items-center justify-between pb-3 border-b border-white/[0.04]">
           <h3 className="font-bold text-xs uppercase tracking-wider text-slate-300 flex items-center gap-2">

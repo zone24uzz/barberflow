@@ -1,27 +1,37 @@
-import { test, before, describe } from 'node:test';
+import { test, before, describe, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 
-// Use a throwaway DB file so tests never touch the real barberflow.sqlite
-const TEST_DB = path.join(process.cwd(), 'test-barberflow.sqlite');
+// Use a throwaway DB file in OS temp directory so tests never touch the repo workspace
+const TEST_DB = path.join(os.tmpdir(), `barberflow-test-db-auth-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`);
 for (const suffix of ['', '-wal', '-shm']) {
-  if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+  try {
+    if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+  } catch {
+    // Ignore
+  }
 }
 process.env.SQLITE_DB_PATH = TEST_DB;
 
-// The repo's backend/.env has real Supabase credentials configured (needed for
-// normal dev/deploy). Force the adapter's "unconfigured" path for these tests so
-// they exercise the SQLite fallback as documented, instead of hitting the live
-// Supabase project (whose profiles table lacks a password_hash column).
-// Setting these (even to '') before supabaseDb.js's dotenv.config() runs prevents
-// dotenv from populating them, since dotenv never overwrites an already-set key.
+// Force adapter to use SQLite fallback
 process.env.SUPABASE_URL = '';
 process.env.SUPABASE_SERVICE_ROLE_KEY = '';
 process.env.SUPABASE_ANON_KEY = '';
 process.env.SUPABASE_KEY = '';
 
 const { db } = await import('../src/sqliteDb.js');
+
+after(() => {
+  for (const suffix of ['', '-wal', '-shm']) {
+    try {
+      if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+    } catch {
+      // Ignore
+    }
+  }
+});
 
 describe('sqliteDb auth methods', () => {
   test('registerProfile creates a barber and returns the safe shape', () => {

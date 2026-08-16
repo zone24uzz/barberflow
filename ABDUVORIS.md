@@ -50,16 +50,21 @@ hackaton/
 ├── ABDUVORIS.md                  # Ushbu to'liq kontekst va handoff fayli
 ├── DEPLOY_GUIDE.md               # Supabase, Railway va Vercel deploy qo'llanmasi
 ├── backend/
-│   ├── Dockerfile                # Railway uchun Node 20 Dockerfile
+│   ├── Dockerfile                # Railway uchun Node 22 Dockerfile
 │   ├── .dockerignore
 │   ├── .env.example              # SUPABASE_URL, PORT, TELEGRAM_BOT_TOKEN
 │   ├── package.json              # express, ws, better-sqlite3, @supabase/supabase-js, node-telegram-bot-api
 │   ├── supabase_schema.sql       # Supabase PostgreSQL jadvallari, RLS va Realtime skripti
+│   ├── test/                     # node:test — 32 ta to'liq test (Auth, API, DB, AI)
 │   └── src/
-│       ├── server.js             # Express + WebSocket + REST API + 0.0.0.0 binding
-│       ├── supabaseDb.js         # Supabase Cloud klienti va SQLite fallback adapteri
-│       ├── sqliteDb.js           # Lokal SQLite kontrolleri (WAL + Tranzaksiyalar)
-│       └── telegramBot.js        # Telegram Bot va broadcast xabarnomalar
+│       ├── config/               # env.js, constants.js
+│       ├── db/                   # index.js, sqlite.js, supabase.js
+│       ├── controllers/          # auth, appointment, transaction, inventory, sync, telegram, ai, system
+│       ├── routes/               # index.js, auth, appointment, transaction, inventory, sync, telegram, ai, system
+│       ├── services/             # websocket.service.js, telegram.service.js, ai.service.js (Gemini 3.7 Flash Multimodal)
+│       ├── middlewares/          # errorHandler.js, notFound.js
+│       ├── app.js                # Express app va middleware konfiguratsiyasi
+│       └── server.js             # HTTP server, WebSocket & Telegram bot entry point
 └── frontend/
     ├── package.json              # React 19, Vite, Tailwind v4, Zustand, Canvas Confetti
     ├── vite.config.js            # Proxy /api -> http://localhost:5050
@@ -67,14 +72,16 @@ hackaton/
     ├── .env.example              # VITE_API_URL, VITE_WS_URL
     ├── src/
     │   ├── main.jsx
-    │   ├── App.jsx               # WebSocket Realtime listener & offline tracking
+    │   ├── App.jsx               # WebSocket Realtime listener, offline tracking & Floating AI trigger
     │   ├── index.css             # Tailwind v4 & Warm Amber/Titanium tema
     │   ├── store/
     │   │   └── useAppStore.js    # Zustand store + LocalStorage persistence + API_BASE
     │   ├── utils/
     │   │   └── sound.js          # Web Audio API sof tovush sintezatori
     │   └── components/
-    │       ├── Navbar.jsx        # Rol almashtirish, Offline simulator, Analitika & TG
+    │       ├── BarberFlowAIAssistant.jsx # Multimodal Gemini AI Agent (Rasm tahlili, Usta Co-Pilot, Ega Analitik)
+    │       ├── Navbar.jsx        # Rol almashtirish, Offline simulator, Analitika, AI & TG
+    │       ├── AuthGate.jsx      # Usta / Mijoz / Ega login va 1-klikli demo kirish
     │       ├── ThermalReceiptModal.jsx  # Chop etiluvchi kassa cheki (Print/QR)
     │       ├── AnalyticsModal.jsx       # Biznes analitika va ustalar reytingi
     │       ├── TelegramDrawer.jsx       # Telegram bot boshqaruvi va test xabarnomalar

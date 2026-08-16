@@ -2,11 +2,16 @@ import { test, describe, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import express from 'express';
 
-const TEST_DB = path.join(process.cwd(), 'test-auth-api.sqlite');
+const TEST_DB = path.join(os.tmpdir(), `barberflow-test-auth-api-${Date.now()}-${Math.random().toString(36).slice(2)}.sqlite`);
 for (const suffix of ['', '-wal', '-shm']) {
-  if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+  try {
+    if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+  } catch {
+    // Ignore
+  }
 }
 process.env.SQLITE_DB_PATH = TEST_DB;
 
@@ -28,7 +33,16 @@ before(async () => {
   });
 });
 
-after(() => server.close());
+after(() => {
+  server.close();
+  for (const suffix of ['', '-wal', '-shm']) {
+    try {
+      if (fs.existsSync(TEST_DB + suffix)) fs.unlinkSync(TEST_DB + suffix);
+    } catch {
+      // Ignore
+    }
+  }
+});
 
 const post = (route, body) =>
   fetch(`${baseUrl}${route}`, {

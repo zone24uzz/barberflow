@@ -14,7 +14,7 @@ export const useAppStore = create(
       transactions: [],
 
       // Navigation & Role
-      currentRole: 'owner', // 'owner' | 'barber' | 'client'
+      currentRole: 'client', // 'client' | 'barber' | 'owner'
       selectedBarberId: 'barber-1',
       currentUser: null, // { id, full_name, phone, role } once logged in
 
@@ -51,10 +51,42 @@ export const useAppStore = create(
           if (!res.ok) return { ok: false, error: data.error || 'Kirishda xatolik' };
 
           set({ currentUser: data.user, currentRole: data.user.role });
-          return { ok: true };
+          return { ok: true, user: data.user };
         } catch {
           return { ok: false, error: 'Serverga ulanib bo\'lmadi' };
         }
+      },
+
+      loginAsDemo: async (role = 'owner') => {
+        let demoUser = null;
+        if (role === 'owner') {
+          demoUser = {
+            id: 'owner-1',
+            full_name: 'Jasur Xidoyatov (Boshqaruvchi)',
+            phone: '+998 90 123 45 67',
+            role: 'owner'
+          };
+        } else if (role === 'barber') {
+          demoUser = {
+            id: 'barber-1',
+            full_name: 'Anvar Usta',
+            phone: '+998 93 111 22 33',
+            role: 'barber'
+          };
+        } else if (role === 'client') {
+          demoUser = {
+            id: 'client-demo',
+            full_name: 'Otabek Mirzayev',
+            phone: '+998 90 999 11 22',
+            role: 'client'
+          };
+        }
+
+        if (demoUser) {
+          set({ currentUser: demoUser, currentRole: demoUser.role });
+          return { ok: true, user: demoUser };
+        }
+        return { ok: false, error: 'Noma\'lum rol' };
       },
 
       register: async ({ full_name, phone, password, role }) => {
@@ -75,13 +107,13 @@ export const useAppStore = create(
           // Registering logs you straight in — no second step.
           set({ currentUser: data.user, currentRole: data.user.role });
           await get().fetchServerState(); // pick up the new barber in everyone's profile list
-          return { ok: true };
+          return { ok: true, user: data.user };
         } catch {
           return { ok: false, error: 'Serverga ulanib bo\'lmadi' };
         }
       },
 
-      logout: () => set({ currentUser: null }),
+      logout: () => set({ currentUser: null, currentRole: 'client' }),
 
       setIsOnline: (status) => set({ isOnline: status }),
       toggleSimulatedOffline: () => {

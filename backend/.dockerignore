@@ -3,3 +3,8 @@ npm-debug.log
 .env
 .git
 .DS_Store
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal
+test/

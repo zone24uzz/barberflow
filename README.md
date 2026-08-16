@@ -41,22 +41,26 @@ Usta o'zi ro'yxatdan o'tadi va shu zahoti eganing ekranida hamda mijozlarning us
 barberflow/
 ├── backend/                        # Node.js (ESM) + Express + WebSocket
 │   ├── src/
-│   │   ├── server.js               # REST API, WebSocket broadcast, status sahifasi
-│   │   ├── auth.js                 # /api/auth/register va /api/auth/login (bcryptjs)
-│   │   ├── supabaseDb.js           # Supabase Cloud adapteri (SQLite'ga fallback qiladi)
-│   │   ├── sqliteDb.js             # Lokal SQLite (WAL rejimi, ACID tranzaksiyalar)
-│   │   └── telegramBot.js          # Telegram bot va push-xabarnomalar
-│   ├── test/                       # node:test — 19 ta test
+│   │   ├── config/                 # env.js, constants.js
+│   │   ├── db/                     # index.js, sqlite.js, supabase.js
+│   │   ├── controllers/            # auth, appointment, transaction, inventory, sync, telegram, ai, system
+│   │   ├── routes/                 # index.js, auth, appointment, transaction, inventory, sync, telegram, ai, system
+│   │   ├── services/               # websocket.service.js, telegram.service.js, ai.service.js (Gemini 3.7 Flash)
+│   │   ├── middlewares/            # errorHandler.js, notFound.js
+│   │   ├── app.js                  # Express app & middleware sozlamalari
+│   │   └── server.js               # Server entry point (HTTP, WS, Telegram bot, port listen)
+│   ├── test/                       # node:test — 32 ta keng qamrovli test (Auth, API, DB, AI)
 │   ├── supabase_schema.sql         # Supabase jadvallari, RLS va Realtime
 │   └── Dockerfile                  # Railway uchun (node:22-slim)
 │
 ├── frontend/                       # React 19 + Vite + Tailwind v4 + Zustand
 │   └── src/
-│       ├── App.jsx                 # WebSocket listener, offline kuzatuvi, rol marshrutlash
+│       ├── App.jsx                 # WebSocket listener, offline kuzatuvi, rol marshrutlash & AI floating
 │       ├── store/useAppStore.js    # Zustand + localStorage + offline sync navbati
 │       ├── utils/sound.js          # Web Audio API bilan sintez qilingan ovozlar (mp3 fayllarsiz)
 │       └── components/
-│           ├── AuthGate.jsx        # Usta / Mijoz login va ro'yxatdan o'tish
+│           ├── BarberFlowAIAssistant.jsx # Multimodal Gemini AI Agent (Rasm tahlili, Usta Co-Pilot, Ega Analitik)
+│           ├── AuthGate.jsx        # Usta / Mijoz / Ega login va 1-klikli demo kirish
 │           ├── views/{Owner,Barber,Client}View.jsx
 │           ├── {WalkIn,Payment,Analytics,ThermalReceipt}Modal.jsx
 │           ├── TelegramDrawer.jsx  # Telegram bot boshqaruvi
@@ -90,7 +94,7 @@ Brauzerda `http://localhost:5173` ni oching. Vite `/api` so'rovlarini `localhost
 
 **Testlar:**
 ```bash
-cd backend && npm test      # 19 ta test — auth endpointlari va DB qatlami
+cd backend && npm test      # 32 ta test — auth, API endpointlari, DB va Gemini AI qatlami
 cd frontend && npm run lint # oxlint
 ```
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Printer, CheckCircle2, QrCode, Scissors } from 'lucide-react';
+import { X, Printer, QrCode, Scissors } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 export default function ThermalReceiptModal({ transaction, onClose }) {

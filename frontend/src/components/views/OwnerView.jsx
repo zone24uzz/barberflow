@@ -8,9 +8,7 @@ import {
   Clock, 
   CheckCircle, 
   AlertCircle, 
-  CreditCard, 
   Banknote,
-  QrCode,
   Scissors,
   Receipt
 } from 'lucide-react';

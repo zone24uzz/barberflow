@@ -8,8 +8,7 @@ import {
   Coffee, 
   Scissors, 
   Plus, 
-  UserCheck,
-  ArrowRight
+  UserCheck
 } from 'lucide-react';
 import { sound } from '../../utils/sound';
 
@@ -32,7 +31,6 @@ export default function BarberView() {
   // Appointments for this specific barber
   const myWaiting = appointments.filter(a => a.barber_id === currentBarber?.id && a.status === 'waiting');
   const myInProgress = appointments.find(a => a.barber_id === currentBarber?.id && a.status === 'in_progress');
-  const myCompleted = appointments.filter(a => a.barber_id === currentBarber?.id && a.status === 'completed');
 
   // Barber Earnings calculation (50% commission)
   const myEarningsTotal = transactions

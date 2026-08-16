@@ -1,10 +1,10 @@
 import React from 'react';
-import { X, TrendingUp, Users, Clock, Award, BarChart3, Scissors, Percent, DollarSign } from 'lucide-react';
+import { X, Award, BarChart3 } from 'lucide-react';
 import { sound } from '../utils/sound';
 import { useAppStore } from '../store/useAppStore';
 
 export default function AnalyticsModal({ isOpen, onClose }) {
-  const { profiles, services, appointments, transactions } = useAppStore();
+  const { profiles, appointments, transactions } = useAppStore();
 
   if (!isOpen) return null;
 

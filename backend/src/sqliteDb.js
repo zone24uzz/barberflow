@@ -169,7 +169,11 @@ export class SqliteDB {
   }
 
   getState() {
-    const profiles = sqlite.prepare('SELECT * FROM profiles WHERE is_active = 1').all();
+    // Explicit column list: never let a future ALTER TABLE (e.g. password_hash)
+    // silently reach the unauthenticated /api/state response or WS broadcast.
+    const profiles = sqlite.prepare(
+      'SELECT id, full_name, phone, role, is_active, avatar_badge, created_at FROM profiles WHERE is_active = 1'
+    ).all();
     const services = sqlite.prepare('SELECT * FROM services').all();
     const appointments = sqlite.prepare('SELECT * FROM appointments ORDER BY datetime(created_at) ASC').all();
     const inventory = sqlite.prepare('SELECT * FROM inventory').all();

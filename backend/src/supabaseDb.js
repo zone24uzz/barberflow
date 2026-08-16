@@ -34,7 +34,9 @@ export class SupabaseAdapter {
         { data: inventory },
         { data: transactions }
       ] = await Promise.all([
-        this.client.from('profiles').select('*').eq('is_active', true),
+        // Explicit column list: never let a future column (e.g. password_hash)
+        // silently reach the unauthenticated /api/state response or WS broadcast.
+        this.client.from('profiles').select('id, full_name, phone, role, is_active, avatar_badge, created_at').eq('is_active', true),
         this.client.from('services').select('*'),
         this.client.from('appointments').select('*').order('created_at', { ascending: true }),
         this.client.from('inventory').select('*'),

@@ -105,3 +105,43 @@ describe('supabaseDb adapter falls back to sqlite when unconfigured', () => {
     );
   });
 });
+
+describe('getState never leaks password_hash', () => {
+  test('sqliteDb getState().profiles includes the registered profile but no password_hash key', () => {
+    db.registerProfile({
+      full_name: 'Sirli Usta',
+      phone: '+998900000099',
+      password_hash: 'super-secret-bcrypt-hash',
+      role: 'barber'
+    });
+
+    const { profiles } = db.getState();
+    const match = profiles.find(p => p.phone === '+998900000099');
+
+    assert.ok(match, 'registered profile must be present in getState().profiles');
+    assert.equal('password_hash' in match, false, 'profile object must not carry a password_hash key');
+    for (const p of profiles) {
+      assert.equal('password_hash' in p, false, 'no profile in getState() may carry a password_hash key');
+    }
+  });
+
+  test('supabaseDb adapter getState().profiles includes the registered profile but no password_hash key', async () => {
+    const { db: adapter } = await import('../src/supabaseDb.js');
+
+    await adapter.registerProfile({
+      full_name: 'Sirli Mijoz',
+      phone: '+998900000098',
+      password_hash: 'another-super-secret-bcrypt-hash',
+      role: 'client'
+    });
+
+    const { profiles } = await adapter.getState();
+    const match = profiles.find(p => p.phone === '+998900000098');
+
+    assert.ok(match, 'registered profile must be present in getState().profiles');
+    assert.equal('password_hash' in match, false, 'profile object must not carry a password_hash key');
+    for (const p of profiles) {
+      assert.equal('password_hash' in p, false, 'no profile in getState() may carry a password_hash key');
+    }
+  });
+});

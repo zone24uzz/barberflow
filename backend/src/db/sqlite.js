@@ -122,12 +122,13 @@ function seedDatabase() {
 
   const now = new Date().toISOString();
   const ownerPasswordHash = bcrypt.hashSync('admin123', 10);
+  const barberPasswordHash = bcrypt.hashSync('barber123', 10);
 
   // 1. Profiles
   insertProfile.run('owner-1', 'Jasur Xidoyatov (Boshqaruvchi)', '+998 90 123 45 67', 'owner', 1, '👑', ownerPasswordHash, now);
-  insertProfile.run('barber-1', 'Anvar Usta', '+998 93 111 22 33', 'barber', 1, '💈', null, now);
-  insertProfile.run('barber-2', 'Bekzod Usta', '+998 94 444 55 66', 'barber', 1, '✂️', null, now);
-  insertProfile.run('barber-3', 'Sardor Usta', '+998 97 777 88 99', 'barber', 1, '🧴', null, now);
+  insertProfile.run('barber-1', 'Anvar Usta', '+998 93 111 22 33', 'barber', 1, '💈', barberPasswordHash, now);
+  insertProfile.run('barber-2', 'Bekzod Usta', '+998 94 444 55 66', 'barber', 1, '✂️', barberPasswordHash, now);
+  insertProfile.run('barber-3', 'Sardor Usta', '+998 97 777 88 99', 'barber', 1, '🧴', barberPasswordHash, now);
 
   // 2. Services
   insertService.run('srv-1', 'Klassik Soch Olish', 25, 50000, 50, 'Scissors');

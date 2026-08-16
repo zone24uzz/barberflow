@@ -11,7 +11,8 @@ import {
   Smartphone,
   Volume2,
   VolumeX,
-  BarChart3
+  BarChart3,
+  LogOut,
 } from 'lucide-react';
 import { sound } from '../utils/sound';
 import TelegramDrawer from './TelegramDrawer';
@@ -27,7 +28,9 @@ export default function Navbar() {
     offlineQueue,
     isSyncing,
     syncOfflineQueue,
-    resetDemo
+    resetDemo,
+    currentUser,
+    logout,
   } = useAppStore();
 
   const [isTelegramOpen, setIsTelegramOpen] = useState(false);
@@ -83,6 +86,23 @@ export default function Navbar() {
 
             {/* Action Tools */}
             <div className="flex items-center gap-2">
+              {/* Logged-in user + logout */}
+              {currentUser && (
+                <div className="flex items-center gap-2 pr-2 mr-1 border-r border-white/[0.08]">
+                  <span className="hidden sm:inline text-xs font-semibold text-slate-300 max-w-[140px] truncate">
+                    {currentUser.full_name}
+                  </span>
+                  <button
+                    onClick={() => { sound.play('toggle'); logout(); }}
+                    title="Hisobdan chiqish"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-[#14161f] hover:bg-red-950/40 text-slate-300 hover:text-red-300 border border-white/[0.08] hover:border-red-500/30 transition-all active:scale-95"
+                  >
+                    <LogOut className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Chiqish</span>
+                  </button>
+                </div>
+              )}
+
               {/* Analytics Hub */}
               <button
                 onClick={() => { sound.play('click'); setIsAnalyticsOpen(true); }}

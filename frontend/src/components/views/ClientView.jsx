@@ -13,11 +13,12 @@ import {
 import { sound } from '../../utils/sound';
 
 export default function ClientView() {
-  const { 
-    profiles, 
-    services, 
-    appointments, 
-    addAppointment 
+  const {
+    profiles,
+    services,
+    appointments,
+    currentUser,
+    addAppointment
   } = useAppStore();
 
   const barbers = profiles.filter(p => p.role === 'barber');
@@ -25,8 +26,8 @@ export default function ClientView() {
   const [searchPhone, setSearchPhone] = useState('');
   const [selectedBarberId, setSelectedBarberId] = useState(barbers[0]?.id || 'barber-1');
   const [selectedServiceId, setSelectedServiceId] = useState(services[0]?.id || 'srv-1');
-  const [clientName, setClientName] = useState('');
-  const [clientPhone, setClientPhone] = useState('');
+  const [clientName, setClientName] = useState(currentUser?.full_name || '');
+  const [clientPhone, setClientPhone] = useState(currentUser?.phone || '');
   const [bookingSuccess, setBookingSuccess] = useState(null);
 
   // Search existing appointment by phone or name

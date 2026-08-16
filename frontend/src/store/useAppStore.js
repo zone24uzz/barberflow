@@ -16,6 +16,7 @@ export const useAppStore = create(
       // Navigation & Role
       currentRole: 'owner', // 'owner' | 'barber' | 'client'
       selectedBarberId: 'barber-1',
+      currentUser: null, // { id, full_name, phone, role } once logged in
 
       // Network & Offline resilience state
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
@@ -33,6 +34,55 @@ export const useAppStore = create(
       setSelectedBarberId: (barberId) => set({ selectedBarberId: barberId }),
       setIsWalkInModalOpen: (isOpen) => set({ isWalkInModalOpen: isOpen }),
       setActivePaymentApt: (apt) => set({ activePaymentApt: apt }),
+
+      login: async (phone, password) => {
+        if (!get().getEffectiveOnline()) {
+          return { ok: false, error: 'Internetga ulaning' };
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ phone, password })
+          });
+          const data = await res.json();
+
+          if (!res.ok) return { ok: false, error: data.error || 'Kirishda xatolik' };
+
+          set({ currentUser: data.user, currentRole: data.user.role });
+          return { ok: true };
+        } catch {
+          return { ok: false, error: 'Serverga ulanib bolmadi' };
+        }
+      },
+
+      register: async ({ full_name, phone, password, role }) => {
+        if (!get().getEffectiveOnline()) {
+          return { ok: false, error: 'Internetga ulaning' };
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}/api/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ full_name, phone, password, role })
+          });
+          const data = await res.json();
+
+          if (!res.ok) return { ok: false, error: data.error || 'Royxatdan otishda xatolik' };
+
+          // Registering logs you straight in — no second step.
+          set({ currentUser: data.user, currentRole: data.user.role });
+          await get().fetchServerState(); // pick up the new barber in everyone's profile list
+          return { ok: true };
+        } catch {
+          return { ok: false, error: 'Serverga ulanib bolmadi' };
+        }
+      },
+
+      logout: () => set({ currentUser: null }),
+
       setIsOnline: (status) => set({ isOnline: status }),
       toggleSimulatedOffline: () => {
         const next = !get().isSimulatedOffline;
@@ -270,7 +320,8 @@ export const useAppStore = create(
         inventory: state.inventory,
         transactions: state.transactions,
         offlineQueue: state.offlineQueue,
-        selectedBarberId: state.selectedBarberId
+        selectedBarberId: state.selectedBarberId,
+        currentUser: state.currentUser
       })
     }
   )

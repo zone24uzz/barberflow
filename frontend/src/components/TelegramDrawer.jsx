@@ -24,7 +24,8 @@ export default function TelegramDrawer({ isOpen, onClose }) {
     setTestSent(true);
 
     try {
-      await fetch('/api/telegram/test-notify', {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      await fetch(`${API_BASE}/api/telegram/test-notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 
+const API_BASE = import.meta.env.VITE_API_URL || '';
+
 export const useAppStore = create(
   persist(
     (set, get) => ({
@@ -50,7 +52,7 @@ export const useAppStore = create(
         if (!get().getEffectiveOnline()) return;
 
         try {
-          const res = await fetch('/api/state');
+          const res = await fetch(`${API_BASE}/api/state`);
           if (res.ok) {
             const data = await res.json();
             set({
@@ -100,7 +102,7 @@ export const useAppStore = create(
 
         if (get().getEffectiveOnline()) {
           try {
-            await fetch('/api/appointments', {
+            await fetch(`${API_BASE}/api/appointments`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(newApt)
@@ -162,7 +164,7 @@ export const useAppStore = create(
 
         if (get().getEffectiveOnline()) {
           try {
-            await fetch(`/api/appointments/${aptId}`, {
+            await fetch(`${API_BASE}/api/appointments/${aptId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
@@ -189,7 +191,7 @@ export const useAppStore = create(
         const item = get().inventory.find(i => i.id === itemId);
         if (get().getEffectiveOnline() && item) {
           try {
-            await fetch(`/api/inventory/${itemId}`, {
+            await fetch(`${API_BASE}/api/inventory/${itemId}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ stock_quantity: item.stock_quantity })
@@ -220,7 +222,7 @@ export const useAppStore = create(
 
         set({ isSyncing: true });
         try {
-          const res = await fetch('/api/sync', {
+          const res = await fetch(`${API_BASE}/api/sync`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ actions: queue })
@@ -249,7 +251,7 @@ export const useAppStore = create(
       resetDemo: async () => {
         try {
           if (get().getEffectiveOnline()) {
-            await fetch('/api/reset', { method: 'POST' });
+            await fetch(`${API_BASE}/api/reset`, { method: 'POST' });
           }
           // Also fetch fresh server state
           await get().fetchServerState();

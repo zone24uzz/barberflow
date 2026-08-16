@@ -45,8 +45,16 @@ export default function App() {
       if (!isOnline || isSimulatedOffline) return;
 
       try {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.hostname}:5050/ws`;
+        let wsUrl;
+        if (import.meta.env.VITE_WS_URL) {
+          wsUrl = import.meta.env.VITE_WS_URL;
+        } else if (import.meta.env.VITE_API_URL) {
+          const apiHost = import.meta.env.VITE_API_URL.replace(/^http/, 'ws');
+          wsUrl = `${apiHost}/ws`;
+        } else {
+          const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+          wsUrl = `${protocol}//${window.location.hostname}:5050/ws`;
+        }
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {

@@ -61,6 +61,50 @@ export class SupabaseAdapter {
     }
   }
 
+  async findProfileByPhone(phone) {
+    if (!this.isConfigured) {
+      return sqliteDb.findProfileByPhone(phone);
+    }
+
+    const { data, error } = await this.client
+      .from('profiles')
+      .select('*')
+      .eq('phone', phone)
+      .maybeSingle();
+
+    if (error) throw error;
+    return data || undefined;
+  }
+
+  async registerProfile({ full_name, phone, password_hash, role }) {
+    if (!this.isConfigured) {
+      return sqliteDb.registerProfile({ full_name, phone, password_hash, role });
+    }
+
+    const existing = await this.findProfileByPhone(phone);
+    if (existing) throw new Error('PHONE_TAKEN');
+
+    const newProfile = {
+      id: `${role}-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      full_name,
+      phone,
+      role,
+      is_active: true,
+      avatar_badge: role === 'barber' ? '💈' : '🙂',
+      password_hash,
+      created_at: new Date().toISOString()
+    };
+
+    const { error } = await this.client.from('profiles').insert(newProfile);
+    if (error) {
+      // 23505 = unique_violation, i.e. the phone index caught a race.
+      if (error.code === '23505') throw new Error('PHONE_TAKEN');
+      throw error;
+    }
+
+    return { id: newProfile.id, full_name, phone, role };
+  }
+
   async addAppointment(data) {
     if (!this.isConfigured) {
       return sqliteDb.addAppointment(data);

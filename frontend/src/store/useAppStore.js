@@ -53,7 +53,7 @@ export const useAppStore = create(
           set({ currentUser: data.user, currentRole: data.user.role });
           return { ok: true };
         } catch {
-          return { ok: false, error: 'Serverga ulanib bolmadi' };
+          return { ok: false, error: 'Serverga ulanib bo\'lmadi' };
         }
       },
 
@@ -70,14 +70,14 @@ export const useAppStore = create(
           });
           const data = await res.json();
 
-          if (!res.ok) return { ok: false, error: data.error || 'Royxatdan otishda xatolik' };
+          if (!res.ok) return { ok: false, error: data.error || 'Ro\'yxatdan o\'tishda xatolik' };
 
           // Registering logs you straight in — no second step.
           set({ currentUser: data.user, currentRole: data.user.role });
           await get().fetchServerState(); // pick up the new barber in everyone's profile list
           return { ok: true };
         } catch {
-          return { ok: false, error: 'Serverga ulanib bolmadi' };
+          return { ok: false, error: 'Serverga ulanib bo\'lmadi' };
         }
       },
 

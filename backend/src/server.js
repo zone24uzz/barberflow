@@ -17,7 +17,7 @@ const wss = new WebSocketServer({ server, path: '/ws' });
 app.use(cors({ origin: '*' }));
 app.use(express.json());
 app.use(morgan('dev'));
-app.use('/api/auth', createAuthRouter(db));
+app.use('/api/auth', createAuthRouter(db, broadcastState));
 
 // Initialize Telegram Bot
 const botInstance = initTelegramBot(process.env.APP_URL || 'http://localhost:5173');

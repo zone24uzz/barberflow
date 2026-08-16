@@ -17,7 +17,7 @@ function toSafeUser({ id, full_name, phone, role }) {
   return { id, full_name, phone, role };
 }
 
-export default function createAuthRouter(db) {
+export default function createAuthRouter(db, broadcastState) {
   const router = express.Router();
 
   router.post('/register', async (req, res) => {
@@ -45,6 +45,14 @@ export default function createAuthRouter(db) {
         role
       });
       res.status(201).json({ success: true, user: toSafeUser(user) });
+
+      // Broadcast failures must never turn a successful registration into
+      // an error response — the client already has its 201, this is best-effort.
+      if (typeof broadcastState === 'function') {
+        Promise.resolve(broadcastState('PROFILE_REGISTERED', toSafeUser(user))).catch(err => {
+          console.error('Register broadcast error:', err);
+        });
+      }
     } catch (err) {
       if (err.message === 'PHONE_TAKEN') {
         return res.status(409).json({ success: false, error: "Bu raqam allaqachon ro'yxatdan o'tgan" });

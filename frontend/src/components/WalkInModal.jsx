@@ -4,13 +4,13 @@ import { X, UserPlus, Scissors, Phone, User, CheckCircle2 } from 'lucide-react';
 import { sound } from '../utils/sound';
 
 export default function WalkInModal() {
-  const { isWalkInModalOpen, setIsWalkInModalOpen, profiles, services, addAppointment } = useAppStore();
+  const { isWalkInModalOpen, setIsWalkInModalOpen, profiles, services, addAppointment, currentUser } = useAppStore();
 
   const barbers = profiles.filter(p => p.role === 'barber');
 
   const [clientName, setClientName] = useState('');
   const [clientPhone, setClientPhone] = useState('');
-  const [selectedBarberId, setSelectedBarberId] = useState(barbers[0]?.id || 'barber-1');
+  const [selectedBarberId, setSelectedBarberId] = useState(currentUser?.id || barbers[0]?.id || 'barber-1');
   const [selectedServiceId, setSelectedServiceId] = useState(services[0]?.id || 'srv-1');
   const [isSubmitting, setIsSubmitting] = useState(false);
 

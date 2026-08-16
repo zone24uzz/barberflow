@@ -99,7 +99,7 @@ export default function AuthGate() {
           the account's stored role wins, so a wrong tab is never a dead end. */}
       {mode === 'login' && (
         <p className="text-[11px] text-slate-500 text-center px-2">
-          Kirishda tab muhim emas — hisobingiz roli avtomatik aniqlanadi
+          Kirishda tab muhim emas — hisobingiz roli avtomatik aniqlanadi va shu rolga mos oynaga o'tasiz
         </p>
       )}
 

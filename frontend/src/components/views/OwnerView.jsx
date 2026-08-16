@@ -12,7 +12,6 @@ import {
   Banknote,
   QrCode,
   Scissors,
-  ArrowUpRight,
   Receipt
 } from 'lucide-react';
 import { sound } from '../../utils/sound';
@@ -27,9 +26,7 @@ export default function OwnerView() {
     transactions, 
     setIsWalkInModalOpen, 
     restockInventory,
-    setActivePaymentApt,
-    setCurrentRole,
-    setSelectedBarberId
+    setActivePaymentApt
   } = useAppStore();
 
   const [selectedTxForReceipt, setSelectedTxForReceipt] = useState(null);
@@ -55,12 +52,6 @@ export default function OwnerView() {
   const handleRestock = (itemId) => {
     sound.play('success');
     restockInventory(itemId, 10);
-  };
-
-  const handleStationClick = (barberId) => {
-    sound.play('toggle');
-    setSelectedBarberId(barberId);
-    setCurrentRole('barber');
   };
 
   const handleViewReceipt = (tx) => {
@@ -198,7 +189,7 @@ export default function OwnerView() {
               <Scissors className="w-4 h-4 text-amber-400" />
               <span>Ustalar Ishchi Stansiyalari</span>
             </h2>
-            <span className="text-xs text-slate-400 font-medium">Boshqarish uchun stansiyani tanlang</span>
+            <span className="text-xs text-slate-400 font-medium">Jonli monitoring</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
@@ -283,14 +274,11 @@ export default function OwnerView() {
                     </div>
                   </div>
 
-                  {/* Switch to Barber View */}
-                  <button
-                    onClick={() => handleStationClick(barber.id)}
-                    className="w-full py-2 rounded-xl text-xs font-semibold bg-[#181a24] hover:bg-[#202330] text-slate-200 transition-all flex items-center justify-center gap-1 active:scale-95"
-                  >
-                    <span>Usta oynasiga o'tish</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-amber-400" />
-                  </button>
+                  {/* Read-only live status footer */}
+                  <div className="w-full py-2 rounded-xl text-xs font-semibold bg-[#181a24] text-slate-400 flex items-center justify-center gap-1.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${currentWork ? 'bg-amber-400' : 'bg-emerald-400'}`} />
+                    <span>Jonli holat kuzatilmoqda</span>
+                  </div>
                 </div>
               );
             })}

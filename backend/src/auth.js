@@ -5,6 +5,14 @@ const BAD_CREDENTIALS = 'Login yoki parol xato';
 const ALLOWED_ROLES = ['barber', 'client'];
 const MIN_PASSWORD_LENGTH = 4;
 
+// Precomputed at module load (not per request) so that when there is no real
+// profile/password_hash to compare against, we still run a bcrypt.compare of
+// comparable cost before responding. This keeps the unknown-phone and
+// wrong-password paths close in timing so a response-latency side channel
+// can't reveal whether a phone number is registered. This hash matches no
+// real password — it exists only to burn CPU time.
+const DUMMY_HASH = bcrypt.hashSync('dummy-password-never-matches', 10);
+
 function toSafeUser({ id, full_name, phone, role }) {
   return { id, full_name, phone, role };
 }
@@ -25,7 +33,7 @@ export default function createAuthRouter(db) {
       return res.status(400).json({ success: false, error: `Parol kamida ${MIN_PASSWORD_LENGTH} ta belgidan iborat bo'lsin` });
     }
     if (!ALLOWED_ROLES.includes(role)) {
-      return res.status(400).json({ success: false, error: 'Roli notogri (faqat usta yoki mijoz)' });
+      return res.status(400).json({ success: false, error: "Roli noto'g'ri (faqat usta yoki mijoz)" });
     }
 
     try {
@@ -57,13 +65,12 @@ export default function createAuthRouter(db) {
       const profile = await db.findProfileByPhone(phone.trim());
 
       // Same generic response for unknown phone, legacy row without a hash,
-      // and wrong password — never reveal which one it was.
-      if (!profile?.password_hash) {
-        return res.status(401).json({ success: false, error: BAD_CREDENTIALS });
-      }
-
-      const matches = await bcrypt.compare(password, profile.password_hash);
-      if (!matches) {
+      // and wrong password — never reveal which one it was. We also always
+      // run a bcrypt.compare (against DUMMY_HASH when there's no real hash
+      // to check) so the missing-profile/missing-hash path takes comparable
+      // time to the wrong-password path, closing the timing side channel.
+      const matches = await bcrypt.compare(password, profile?.password_hash || DUMMY_HASH);
+      if (!profile?.password_hash || !matches) {
         return res.status(401).json({ success: false, error: BAD_CREDENTIALS });
       }
 
